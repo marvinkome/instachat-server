@@ -10,11 +10,13 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "apollo-server-express": "^2.0.4",
         "bcrypt": "^3.0.0",
         "body-parser": "^1.18.3",
         "express": "^4.16.3",
         "express-handlebars": "^3.0.0",
         "express3-handlebars": "^0.5.2",
+        "graphql": "^14.0.0",
         "mongoose": "^5.2.12"
     },
     "devDependencies": {

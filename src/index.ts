@@ -3,6 +3,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
+import apollo from './schema';
 import mainRoute from './main';
 
 function createApp() {
@@ -17,11 +18,12 @@ function createApp() {
     );
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
+    const server = apollo(app);
 
     // setup routes
     app.use('/', mainRoute);
 
-    return app;
+    return { app, server };
 }
 
 export default createApp;
