@@ -3,7 +3,19 @@
     "extends": ["tslint:recommended"],
     "jsRules": {},
     "rules": {
-        "quotemark": false
+        "quotemark": false,
+        "no-console": false,
+        "interface-name": false,
+        "interface-over-type-literal": false,
+        "object-literal-sort-keys": false,
+        "ordered-imports": false,
+        "semicolon": [true, "always", "ignore-bound-class-methods"],
+        "trailing-comma": false,
+        "jsx-no-multiline-js": false,
+        "jsx-curly-spacing": false,
+        "jsx-no-lambda": false,
+        "jsx-boolean-value": [false, "never"],
+        "no-var-requires": false
     },
     "rulesDirectory": []
 }
