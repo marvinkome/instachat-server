@@ -1,0 +1,24 @@
+{
+    "name": "chatapp",
+    "version": "1.0.0",
+    "description": "",
+    "main": "helloWorld.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon index.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "bcrypt": "^3.0.0",
+        "express": "^4.16.3",
+        "express-handlebars": "^3.0.0",
+        "express3-handlebars": "^0.5.2",
+        "mongoose": "^5.2.12"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-preset-env": "^1.7.0",
+        "babel-preset-stage-2": "^6.24.1"
+    }
+}
