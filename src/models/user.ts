@@ -1,7 +1,6 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
+import { model, Schema } from 'mongoose';
+import { hash, compare } from 'bcrypt';
 
-const Schema = mongoose.Schema;
 const userSchema = new Schema({
     username: {
         type: String,
@@ -25,33 +24,27 @@ const userSchema = new Schema({
 });
 
 // presave - hash password
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', function(next) {
     // @ts-ignore
     const password = this.password;
 
     if (password) {
         const saltsRound = 100;
-
-        try {
-            const hash = await bcrypt.hash(password, saltsRound);
-
+        hash(password, saltsRound, (err, passHash) => {
             // @ts-ignore
-            this.password = hash;
+            this.password = passHash;
             next();
-        } catch (e) {
-            throw e;
-        }
+        });
     } else {
         next();
     }
 });
 
 // verify password
-userSchema.methods.verify_password = async function(password) {
-    const match = await bcrypt.compare(password, this.password);
-    return match;
+userSchema.methods.verify_password = function(password: string) {
+    return compare(password, this.password);
 };
 
-const User = mongoose.model('users', userSchema);
+const User = model('users', userSchema);
 
 export default User;
