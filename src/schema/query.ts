@@ -10,7 +10,7 @@ export const queryType = gql`
 
 export const queryResolver = {
     Query: {
-        hello: () => 'hello',
+        hello: () => 'Hello',
         users: async () => {
             const repo = await userRepository();
             const users = await repo.find();
