@@ -17,7 +17,8 @@
         "jsx-boolean-value": [false, "never"],
         "no-var-requires": false,
         "only-arrow-functions": false,
-        "member-access": false
+        "member-access": false,
+        "no-bitwise": false
     },
     "rulesDirectory": []
 }

@@ -1,5 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
+import {
+    Entity,
+    Column,
+    PrimaryGeneratedColumn,
+    BeforeInsert,
+    OneToMany
+} from 'typeorm';
 import { hash, compare } from 'bcrypt';
+import GroupLink from './userGroup';
 
 @Entity()
 export default class User {
@@ -45,6 +52,10 @@ export default class User {
     })
     // @ts-ignore
     sessionId: string;
+
+    @OneToMany(() => GroupLink, (link) => link.user)
+    // @ts-ignore
+    groupAssocs: GroupLink[];
 
     @BeforeInsert()
     async hashPassword() {
