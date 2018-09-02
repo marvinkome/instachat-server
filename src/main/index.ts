@@ -1,13 +1,16 @@
 import express from 'express';
-import User from '../models/user';
+import { userRepository } from '../models';
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    User.find({}, (err, doc) => {
-        res.send({
-            message: doc
-        });
+router.get('/:pass', async (req, res) => {
+    const password = req.params.pass;
+    const repo = await userRepository();
+    const user = await repo.findOne({ username: 'janedoe' });
+    const match = user && (await user.verifyPassword(password));
+
+    res.send({
+        msg: match
     });
 });
 

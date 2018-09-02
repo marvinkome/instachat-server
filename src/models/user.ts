@@ -1,54 +1,58 @@
-import { model, Schema } from 'mongoose';
+import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
 import { hash, compare } from 'bcrypt';
 
-export const userSchema = new Schema({
-    username: {
-        type: String,
-        required: true,
-        unique: true,
-        maxlength: 24
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        maxlength: 64
-    },
-    password: {
-        type: String,
-        required: true,
-        maxlength: 128
-    },
-    about: {
-        type: String,
-        maxlength: 128
-    },
-    client_key: String,
-    session_id: String
-});
-
-// presave - hash password
-userSchema.pre('save', function(next) {
+@Entity()
+export default class User {
+    @PrimaryGeneratedColumn()
     // @ts-ignore
-    const password = this.password;
+    id: number;
 
-    if (password) {
-        const saltsRound = 10;
-        hash(password, saltsRound, (err, passHash) => {
-            // @ts-ignore
-            this.password = passHash;
-            next();
-        });
-    } else {
-        next();
+    @Column({
+        length: 24,
+        unique: true
+    })
+    // @ts-ignore
+    username: string;
+
+    @Column({
+        length: 64,
+        unique: true
+    })
+    // @ts-ignore
+    email: string;
+
+    @Column({
+        length: 128
+    })
+    // @ts-ignore
+    password: string;
+
+    @Column({
+        length: 128,
+        nullable: true
+    })
+    // @ts-ignore
+    about: string;
+
+    @Column({
+        nullable: true
+    })
+    // @ts-ignore
+    clientId: string;
+
+    @Column({
+        nullable: true
+    })
+    // @ts-ignore
+    sessionId: string;
+
+    @BeforeInsert()
+    async hashPassword() {
+        const passwordHash = await hash(this.password, 10);
+        this.password = passwordHash;
     }
-});
 
-// verify password
-userSchema.methods.verify_password = function(password: string) {
-    return compare(password, this.password);
-};
-
-const User = model('users', userSchema, 'users');
-
-export default User;
+    verifyPassword(password: string) {
+        return compare(password, this.password);
+    }
+}

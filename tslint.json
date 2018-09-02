@@ -15,7 +15,9 @@
         "jsx-curly-spacing": false,
         "jsx-no-lambda": false,
         "jsx-boolean-value": [false, "never"],
-        "no-var-requires": false
+        "no-var-requires": false,
+        "only-arrow-functions": false,
+        "member-access": false
     },
     "rulesDirectory": []
 }

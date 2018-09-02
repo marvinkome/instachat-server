@@ -1,5 +1,5 @@
 import { gql } from 'apollo-server-express';
-import User from '../models/user';
+import { userRepository } from '../models';
 
 export const queryType = gql`
     type Query {
@@ -12,8 +12,10 @@ export const queryResolver = {
     Query: {
         hello: () => 'hello',
         users: async () => {
-            const res = await User.find({});
-            return res;
+            const repo = await userRepository();
+            const users = await repo.find();
+
+            return users;
         }
     }
 };

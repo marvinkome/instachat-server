@@ -1,9 +1,11 @@
 import createApp from './src';
 
-const app = createApp();
+const expressPromise = createApp();
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
-    // @ts-ignore
-    console.log(`App is running in localhost:${port}`);
+expressPromise.then((app) => {
+    app.listen(port, () => {
+        // @ts-ignore
+        console.log(`App is running in localhost:${port}`);
+    });
 });
