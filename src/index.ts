@@ -2,9 +2,10 @@
 
 import express, { Request } from 'express';
 import bodyParser from 'body-parser';
+import { connect } from 'mongoose';
 import { ApolloServer } from 'apollo-server-express';
 import { decode } from 'jsonwebtoken';
-import { connection } from './models';
+
 import { schema } from './schema';
 import mainRoute from './main';
 import authRoute from './auth';
@@ -34,31 +35,37 @@ function getUser(header: string | undefined) {
 }
 
 function createApp() {
-    return connection.then(() => {
-        const app = express();
+    const app = express();
 
-        // body parser
-        app.use(bodyParser.json());
-        app.use(bodyParser.urlencoded({ extended: false }));
+    // mongoose
+    connect(
+        'mongodb://localhost:27017/chatdb',
+        {
+            useNewUrlParser: true
+        }
+    );
 
-        // setup extensions
-        // apollo
-        const apolloServer = new ApolloServer({
-            schema,
-            context: ({ req }: { req: Request }) => {
-                const token = req.headers.authorization;
-                const userId = getUser(token);
-                return { userId };
-            }
-        });
-        apolloServer.applyMiddleware({ app });
+    // body parser
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: false }));
 
-        // setup routes
-        app.use('/', mainRoute);
-        app.use('/auth', authRoute);
-
-        return app;
+    // setup extensions
+    // apollo
+    const apolloServer = new ApolloServer({
+        schema,
+        context: ({ req }: { req: Request }) => {
+            const token = req.headers.authorization;
+            const userId = getUser(token);
+            return { userId };
+        }
     });
+    apolloServer.applyMiddleware({ app });
+
+    // setup routes
+    app.use('/', mainRoute);
+    app.use('/auth', authRoute);
+
+    return app;
 }
 
 export default createApp;

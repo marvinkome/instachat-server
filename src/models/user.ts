@@ -1,69 +1,38 @@
-import {
-    Entity,
-    Column,
-    PrimaryGeneratedColumn,
-    BeforeInsert,
-    OneToMany
-} from 'typeorm';
+import { Schema, model } from 'mongoose';
 import { hash, compare } from 'bcrypt';
-import GroupLink from './userGroup';
 
-@Entity()
-export default class User {
-    @PrimaryGeneratedColumn()
+export const userSchema = new Schema({
+    username: {
+        type: String,
+        unique: true,
+        maxlength: 24,
+        required: true
+    },
+    email: {
+        type: String,
+        unique: true,
+        maxlength: 64,
+        required: true
+    },
+    password: {
+        type: String,
+        maxlength: 128,
+        required: true
+    },
+    about: String,
+    authKey: String,
+    sessionId: String
+});
+
+userSchema.pre('save', async function(next) {
     // @ts-ignore
-    id: number;
+    this.pasword = await hash(this.password, 10);
+    next();
+});
 
-    @Column({
-        length: 24,
-        unique: true
-    })
-    // @ts-ignore
-    username: string;
+userSchema.methods.verify_password = function(password: string) {
+    return compare(password, this.password);
+};
 
-    @Column({
-        length: 64,
-        unique: true
-    })
-    // @ts-ignore
-    email: string;
-
-    @Column({
-        length: 128
-    })
-    // @ts-ignore
-    password: string;
-
-    @Column({
-        length: 128,
-        nullable: true
-    })
-    // @ts-ignore
-    about: string;
-
-    @Column({
-        nullable: true
-    })
-    // @ts-ignore
-    clientId: string;
-
-    @Column({
-        nullable: true
-    })
-    // @ts-ignore
-    sessionId: string;
-
-    @OneToMany(() => GroupLink, (link) => link.user)
-    // @ts-ignore
-    groupAssocs: GroupLink[];
-
-    @BeforeInsert()
-    async hashPassword() {
-        const passwordHash = await hash(this.password, 10);
-        this.password = passwordHash;
-    }
-
-    verifyPassword(password: string) {
-        return compare(password, this.password);
-    }
-}
+const userModel = model('User', userSchema);
+export default userModel;
