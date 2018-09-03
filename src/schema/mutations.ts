@@ -1,6 +1,6 @@
 import { gql } from 'apollo-server-express';
 import User from '../models/user';
-// import Group from '../models/group';
+import Group from '../models/group';
 // import { userRepository, groupRepository } from '../models';
 // import { addMemberToGroup } from '../models/helpers';
 
@@ -17,17 +17,11 @@ export const mutationResolver = {
         addUser: async (root: any, data: any) => {
             const user = new User(data);
             return await user.save();
+        },
+        createGroup: async (root: any, data: any) => {
+            const group = new Group(data);
+            return await group.save();
         }
-        // createGroup: async (root: any, data: any) => {
-        //     const repo = await groupRepository();
-        //     const group = new Group();
-        //     group.name = data.name;
-        //     if (data.topic) {
-        //         group.topic = data.topic;
-        //     }
-
-        //     return await repo.save(group);
-        // },
         // addUserToGroup: async (root: any, data: any) => {
         //     const { err, group } = await addMemberToGroup(
         //         data.group,

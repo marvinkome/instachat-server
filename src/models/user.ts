@@ -21,7 +21,13 @@ export const userSchema = new Schema({
     },
     about: String,
     authKey: String,
-    sessionId: String
+    sessionId: String,
+    groups: [
+        {
+            group: Schema.Types.ObjectId,
+            role: String
+        }
+    ]
 });
 
 userSchema.pre('save', async function(next) {
