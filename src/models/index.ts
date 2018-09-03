@@ -32,3 +32,8 @@ export const roleRepository = async () => {
     const db = await connection;
     return db.getRepository(Role);
 };
+
+export const userGroupRepository = async () => {
+    const db = await connection;
+    return db.getRepository(UserGroup);
+};

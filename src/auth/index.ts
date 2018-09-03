@@ -3,6 +3,7 @@ import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import { userRepository } from '../models';
 import { SECRET_KEY } from '../../config';
+import "./passport";
 
 const authRouter = Router();
 

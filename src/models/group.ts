@@ -11,14 +11,14 @@ export default class Group {
         length: 32
     })
     // @ts-ignore
-    name: number;
+    name: string;
 
     @Column({
         length: 128,
         nullable: true
     })
     // @ts-ignore
-    topic: number;
+    topic: string;
 
     @Column({
         default: new Date()

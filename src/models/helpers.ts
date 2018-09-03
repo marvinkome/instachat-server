@@ -1,6 +1,12 @@
 import Permissions from './permission';
 import Role from './role';
-import { roleRepository } from './index';
+import UserGroup from './userGroup';
+import {
+    roleRepository,
+    userRepository,
+    groupRepository,
+    userGroupRepository
+} from './index';
 
 export function createRoles() {
     // create all default roles
@@ -46,4 +52,58 @@ export function createRoles() {
             repo.save(newRole);
         }
     });
+}
+
+export async function addMemberToGroup(
+    groupName: string,
+    username: string,
+    rolename?: string
+) {
+    try {
+        // get repos
+        const groupRepo = await groupRepository();
+        const userRepo = await userRepository();
+        const roleRepo = await roleRepository();
+
+        // find models
+        const group = await groupRepo.findOne({ name: groupName });
+        const user = await userRepo.findOne({ username });
+        const role = rolename
+            ? await roleRepo.findOne({ name: rolename })
+            : await roleRepo.findOne({ default: true });
+
+        if (!user) {
+            return {
+                err: 'User not found'
+            };
+        }
+
+        if (!group) {
+            return {
+                err: 'User not found'
+            };
+        }
+
+        if (!role) {
+            return {
+                err: 'No role with that name'
+            };
+        }
+
+        // add user to group with default role
+        const link = new UserGroup();
+        link.user = user;
+        link.group = group;
+        link.role = role;
+        const repo = await userGroupRepository();
+        repo.save(link);
+
+        return {
+            group
+        };
+    } catch (err) {
+        return {
+            err
+        };
+    }
 }

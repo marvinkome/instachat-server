@@ -8,7 +8,6 @@ import { connection } from './models';
 import { schema } from './schema';
 import mainRoute from './main';
 import authRoute from './auth';
-import './auth/passport';
 
 function getUser(header: string | undefined) {
     // check if token is not undefined
