@@ -1,6 +1,7 @@
 import { gql } from 'apollo-server-express';
 import User from '../models/user';
 import Group from '../models/group';
+import Role from '../models/role';
 // import { userRepository, groupRepository } from '../models';
 // import { addMemberToGroup } from '../models/helpers';
 
@@ -8,7 +9,7 @@ export const mutationType = gql`
     type Mutation {
         addUser(username: String!, email: String!, password: String!): User
         createGroup(name: String!, topic: String): Group
-        addUserToGroup(username: String!, group: String!, role: String): Group
+        joinGroup(userId: String!, groupId: String!, role: String): UserGroup
     }
 `;
 
@@ -21,18 +22,38 @@ export const mutationResolver = {
         createGroup: async (root: any, data: any) => {
             const group = new Group(data);
             return await group.save();
-        }
-        // addUserToGroup: async (root: any, data: any) => {
-        //     const { err, group } = await addMemberToGroup(
-        //         data.group,
-        //         data.username,
-        //         data.role
-        //     );
+        },
+        joinGroup: async (root: any, data: any) => {
+            const user = await User.findById(data.userId);
+            const group = await Group.findById(data.groupId);
+            let role = Role.user;
 
-        //     if (err) {
-        //         throw err;
-        //     }
-        //     return group;
-        // }
+            if (data.role) {
+                // check if role is available
+                const roles = Object.keys(Role);
+                if (data.role in roles) {
+                    // @ts-ignore
+                    role = Role[data.role];
+                }
+            }
+
+            if (!user) {
+                throw Error('User not found');
+            }
+
+            if (!group) {
+                throw Error('Group not found');
+            }
+
+            // @ts-ignore
+            const { err, res } = user.join_group(group, role);
+
+            if (err) {
+                throw err;
+            }
+
+            await user.save();
+            return res;
+        }
     }
 };

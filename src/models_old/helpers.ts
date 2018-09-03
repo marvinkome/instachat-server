@@ -1,4 +1,4 @@
-import Permissions from './permission';
+import Permissions from '../models/permission';
 import Role from './role';
 import UserGroup from './userGroup';
 import {
