@@ -33,13 +33,13 @@ export const mutationResolver = {
                 user.username = data.username;
             }
 
-            // update username
+            // update email
             if (data.email) {
                 // @ts-ignore
                 user.email = data.email;
             }
 
-            // update username
+            // update password
             if (data.password) {
                 // @ts-ignore
                 user.password = data.password;

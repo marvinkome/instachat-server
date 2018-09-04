@@ -8,28 +8,29 @@ import { SECRET_KEY } from '../../config';
 const authRouter = Router();
 
 authRouter.post('/login', async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     // check for user in db
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
 
     // verify user
     if (!user) {
         return res.status(401).json({
-            msg: 'User with that username not found'
+            error: 'User with that email not found'
         });
     }
 
     // @ts-ignore
     const passwordMatch: boolean = await user.verify_password(password);
+
     if (!passwordMatch) {
         return res.status(401).json({
-            msg: 'Incorrect password'
+            error: 'Incorrect password'
         });
     }
 
     // encode jwt token
-    const token = jwt.sign({ userId: user.id }, SECRET_KEY);
+    const token = jwt.sign({ userId: user.id, iat: 0 }, SECRET_KEY);
 
     // save token as authToken in db also
     // @ts-ignore
@@ -37,8 +38,7 @@ authRouter.post('/login', async (req, res) => {
     await user.save();
 
     // return
-    res.json({
-        msg: 'Verified',
+    return res.json({
         token
     });
 });

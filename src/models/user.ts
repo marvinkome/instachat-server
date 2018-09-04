@@ -37,13 +37,15 @@ export const userSchema = new Schema({
 });
 
 userSchema.pre('save', async function(next) {
+    // check if password isn't modified then skip
+    if (!this.isModified('password')) {
+        return next();
+    }
+
     // @ts-ignore
     const passwordHash = await hash(this.password, 10);
     // @ts-ignore
     this.password = passwordHash;
-
-    console.log(passwordHash);
-
     next();
 });
 
