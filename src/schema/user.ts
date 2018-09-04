@@ -19,23 +19,39 @@ export const userType = gql`
         about: String
         clientId: String
         sessionId: String
-        groups: [UserGroup]
+        userGroups: [UserGroup]
+        userGroup(groupId: String!): UserGroup
     }
 `;
 
 export const userResolvers = {
     User: {
-        groups: (root: any) => {
+        userGroups: (user: any) => {
+            const groups = user.groups;
             // map
-            const userGroup = root.groups.map(async (item: any) => {
+            return groups.map(async (item: any) => {
                 const group = await Group.findById(item.group);
                 return {
                     role: item.role,
                     group
                 };
             });
+        },
+        userGroup: async (user: any, { groupId }: any) => {
+            const groups = user.groups;
 
-            return userGroup;
+            // filter groups and get the group
+            const filteredGroup = groups.filter((item: any) => {
+                return String(item.group) === groupId;
+            })[0];
+
+            // map
+            const group = await Group.findById(filteredGroup.group);
+
+            return {
+                role: filteredGroup.role,
+                group
+            };
         }
     }
 };
