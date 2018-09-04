@@ -10,6 +10,7 @@ export const mutationType = gql`
         addUser(username: String!, email: String!, password: String!): User
         createGroup(name: String!, topic: String): Group
         joinGroup(userId: String!, groupId: String!, role: String): UserGroup
+        updateUser(username: String!, email: String, password: String): User
     }
 `;
 
@@ -18,6 +19,33 @@ export const mutationResolver = {
         addUser: async (root: any, data: any) => {
             const user = new User(data);
             return await user.save();
+        },
+        updateUser: async (root: any, data: any) => {
+            const user = await User.findOne({ username: data.username });
+
+            if (!user) {
+                throw Error('User not found');
+            }
+
+            // update username
+            if (data.username) {
+                // @ts-ignore
+                user.username = data.username;
+            }
+
+            // update username
+            if (data.email) {
+                // @ts-ignore
+                user.email = data.email;
+            }
+
+            // update username
+            if (data.password) {
+                // @ts-ignore
+                user.password = data.password;
+            }
+
+            return user.save();
         },
         createGroup: async (root: any, data: any) => {
             const group = new Group(data);

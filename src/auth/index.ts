@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import passport from 'passport';
+// import passport from 'passport';
 import jwt from 'jsonwebtoken';
-import { userRepository } from '../models';
+import User from '../models/user';
 import { SECRET_KEY } from '../../config';
-import "./passport";
+// import './passport';
 
 const authRouter = Router();
 
@@ -11,8 +11,7 @@ authRouter.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     // check for user in db
-    const repo = await userRepository();
-    const user = await repo.findOne({ username });
+    const user = await User.findOne({ username });
 
     // verify user
     if (!user) {
@@ -21,8 +20,8 @@ authRouter.post('/login', async (req, res) => {
         });
     }
 
-    const passwordMatch = await user.verifyPassword(password);
-
+    // @ts-ignore
+    const passwordMatch: boolean = await user.verify_password(password);
     if (!passwordMatch) {
         return res.status(401).json({
             msg: 'Incorrect password'
@@ -32,9 +31,10 @@ authRouter.post('/login', async (req, res) => {
     // encode jwt token
     const token = jwt.sign({ userId: user.id }, SECRET_KEY);
 
-    // save token in db also
-    user.clientId = token;
-    await repo.save(user);
+    // save token as authToken in db also
+    // @ts-ignore
+    user.authKey = token;
+    await user.save();
 
     // return
     res.json({
@@ -42,15 +42,5 @@ authRouter.post('/login', async (req, res) => {
         token
     });
 });
-
-authRouter.get(
-    '/protected',
-    passport.authenticate('jwt', { session: false }),
-    (req, res) => {
-        res.json({
-            msg: 'yah you got this'
-        });
-    }
-);
 
 export default authRouter;

@@ -10,30 +10,6 @@ import { schema } from './schema';
 import mainRoute from './main';
 import authRoute from './auth';
 
-function getUser(header: string | undefined) {
-    // check if token is not undefined
-    if (!header) {
-        return null;
-    }
-
-    // break token
-    const token = header.split(' ')[1];
-
-    // decode token
-    const payload = decode(token);
-
-    // check if payload is not falsy
-    if (!payload) {
-        return null;
-    }
-
-    // get userId from payload
-    // @ts-ignore
-    const { userId } = payload;
-
-    return userId;
-}
-
 function createApp() {
     const app = express();
 
@@ -54,9 +30,12 @@ function createApp() {
     const apolloServer = new ApolloServer({
         schema,
         context: ({ req }: { req: Request }) => {
-            const token = req.headers.authorization;
-            const userId = getUser(token);
-            return { userId };
+            // get token from header
+            const header = req.headers.authorization;
+            const token = header && header.split(' ')[1];
+
+            // add token to context to verify user
+            return { token };
         }
     });
     apolloServer.applyMiddleware({ app });

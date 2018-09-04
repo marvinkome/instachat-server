@@ -4,17 +4,25 @@ import Group from '../models/group';
 
 export const queryType = gql`
     type Query {
-        hello: String
-        user(id: String!): User
+        user: User
         group(id: String!): Group
     }
 `;
 
 export const queryResolver = {
     Query: {
-        hello: () => 'Hello',
-        user: async (root: any, { id }: any) => {
-            const user = await User.findById(id);
+        user: async (root: any, data: any, ctx: any) => {
+            // get token from context
+            const token: string = ctx.token;
+
+            // check if token is falsy aka: bad auth header
+            if (!token) {
+                throw Error(`No authorization header. Please put token in header
+                with this format - \'Bearer <token>\'`);
+            }
+
+            // get the user
+            const user = await User.findOne({ authKey: token });
             return user;
         },
         group: async (root: any, { id }: any) => {

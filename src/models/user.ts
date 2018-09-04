@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { hash, compare } from 'bcrypt';
 import Group from './group';
 
@@ -38,7 +38,12 @@ export const userSchema = new Schema({
 
 userSchema.pre('save', async function(next) {
     // @ts-ignore
-    this.pasword = await hash(this.password, 10);
+    const passwordHash = await hash(this.password, 10);
+    // @ts-ignore
+    this.password = passwordHash;
+
+    console.log(passwordHash);
+
     next();
 });
 
