@@ -33,6 +33,12 @@ export const userSchema = new Schema({
                 permission: Number
             }
         }
+    ],
+    sentMessages: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Message'
+        }
     ]
 });
 

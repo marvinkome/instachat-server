@@ -1,11 +1,13 @@
 import { gql } from 'apollo-server-express';
 import Group from '../models/group';
+import Message from '../models/message';
 
 export const userType = gql`
     type Role {
         name: String!
         permission: Int!
     }
+
     type UserGroup {
         group: Group
         role: Role
@@ -21,6 +23,7 @@ export const userType = gql`
         sessionId: String
         userGroups: [UserGroup]
         userGroup(groupId: String!): UserGroup
+        sentMessages: [Message]
     }
 `;
 
@@ -52,6 +55,10 @@ export const userResolvers = {
                 role: filteredGroup.role,
                 group
             };
+        },
+        sentMessages: async (user: any) => {
+            const messages = await Message.find({ from: user._id }).exec();
+            return messages;
         }
     }
 };

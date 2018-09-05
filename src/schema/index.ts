@@ -3,8 +3,15 @@ import { queryType, queryResolver } from './query';
 import { mutationType, mutationResolver } from './mutations';
 import { userType, userResolvers } from './user';
 import { groupType, groupResolvers } from './group';
+import { messageType, messageResolvers } from './message';
 
 export const schema = makeExecutableSchema({
-    typeDefs: [queryType, mutationType, userType, groupType],
-    resolvers: [queryResolver, mutationResolver, groupResolvers, userResolvers]
+    typeDefs: [queryType, mutationType, userType, groupType, messageType],
+    resolvers: [
+        queryResolver,
+        mutationResolver,
+        groupResolvers,
+        userResolvers,
+        messageResolvers
+    ]
 });

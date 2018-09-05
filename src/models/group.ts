@@ -7,7 +7,13 @@ export const groupSchema = new Schema({
         maxlength: 32
     },
     topic: String,
-    createdOn: Date
+    createdOn: Date,
+    messages: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Message'
+        }
+    ]
 });
 
 groupSchema.pre('save', function(next) {
