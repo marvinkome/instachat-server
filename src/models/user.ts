@@ -26,7 +26,7 @@ export const userSchema = new Schema({
         {
             group: {
                 type: Schema.Types.ObjectId,
-                ref: 'Group'
+                ref: 'Group',
             },
             role: {
                 name: String,

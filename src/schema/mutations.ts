@@ -2,6 +2,7 @@ import { gql } from 'apollo-server-express';
 import User from '../models/user';
 import Group from '../models/group';
 import Role from '../models/role';
+import Perms from '../models/permission';
 import Message from '../models/message';
 import { authUser } from './helpers';
 
@@ -71,14 +72,14 @@ export const mutationResolver = {
             }
 
             // @ts-ignore
-            const { err, res } = user.join_group(group, role);
+            const userGroup = await user.join_group(group, role);
 
-            if (err) {
-                throw err;
+            if (userGroup.err) {
+                throw userGroup.err;
             }
 
             await user.save();
-            return res;
+            return userGroup;
         },
         sendMessage: async (root: any, data: any, ctx: any) => {
             const user = await authUser(ctx);
@@ -86,6 +87,25 @@ export const mutationResolver = {
 
             if (!group) {
                 throw Error('Group not found');
+            }
+
+            // check if user is authorized to send message in this group
+            // @ts-ignore
+            const userGroup = user.groups.find(
+                (item: any) => String(item.group) === group.id
+            );
+
+            if (!userGroup) {
+                throw Error("Can't send message in a group you're not among");
+            }
+
+            if (
+                (userGroup.role.permission & Perms.SEND_MESSAGE) !==
+                Perms.SEND_MESSAGE
+            ) {
+                throw Error(
+                    "You're not permitted to send message in this group"
+                );
             }
 
             const message = new Message({
