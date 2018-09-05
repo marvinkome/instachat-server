@@ -57,7 +57,9 @@ export const userResolvers = {
             };
         },
         sentMessages: async (user: any) => {
-            const messages = await Message.find({ from: user._id }).exec();
+            const messages = await Message.find({ from: user._id })
+                .sort({ timestamp: -1 })
+                .exec();
             return messages;
         }
     }
