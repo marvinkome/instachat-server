@@ -5,22 +5,37 @@ import bodyParser from 'body-parser';
 import { connect } from 'mongoose';
 import { ApolloServer } from 'apollo-server-express';
 
+import { authUser } from './schema/helpers';
 import { schema } from './schema';
 import mainRoute from './main';
 import authRoute from './auth';
 
+function context({ req, connection }: any) {
+    if (connection) {
+        return {};
+    } else {
+        // get token from header
+        const header = req.headers.authorization;
+        const token = header && header.split(' ')[1];
+
+        // add token to context to verify user
+        return { token };
+    }
+}
+
 const apolloServer = new ApolloServer({
     schema,
-    context: ({ req, connection }: any) => {
-        if (connection) {
-            return {};
-        } else {
-            // get token from header
-            const header = req.headers.authorization;
-            const token = header && header.split(' ')[1];
+    context,
+    subscriptions: {
+        onConnect: async (connParams: any) => {
+            if (connParams.authToken) {
+                const user = await authUser(connParams.authToken);
+                return {
+                    currentUser: user
+                };
+            }
 
-            // add token to context to verify user
-            return { token };
+            throw Error('Missing auth token!');
         }
     }
 });

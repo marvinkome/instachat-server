@@ -31,7 +31,7 @@ export const mutationResolver = {
             return await group.save();
         },
         updateUser: async (root: any, data: any, ctx: any) => {
-            const user = await authUser(ctx);
+            const user = await authUser(ctx.token);
 
             // update username
             if (data.username) {
@@ -54,7 +54,7 @@ export const mutationResolver = {
             return user.save();
         },
         joinGroup: async (root: any, data: any, ctx: any) => {
-            const user = await authUser(ctx);
+            const user = await authUser(ctx.token);
             const group = await Group.findById(data.groupId);
             let role = Role.user;
 
@@ -86,7 +86,7 @@ export const mutationResolver = {
             return userGroup;
         },
         sendMessage: async (root: any, data: any, ctx: any) => {
-            const user = await authUser(ctx);
+            const user = await authUser(ctx.token);
             const group = await Group.findById(data.groupId);
 
             if (!group) {

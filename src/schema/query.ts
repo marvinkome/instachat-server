@@ -14,7 +14,7 @@ export const queryResolver = {
     Query: {
         user: async (root: any, data: any, ctx: any) => {
             // auth user
-            return authUser(ctx);
+            return authUser(ctx.token);
         },
         group: async (root: any, { id }: any) => {
             const group = await Group.findById(id);

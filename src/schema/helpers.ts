@@ -1,9 +1,6 @@
 import User from '../models/user';
 
-export async function authUser(ctx: any) {
-    // get token from context
-    const token: string = ctx.token;
-
+export async function authUser(token: string) {
     // check if token is falsy aka: bad auth header
     if (!token.length) {
         throw Error(`No authorization header. Please put token in header
