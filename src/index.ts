@@ -1,14 +1,29 @@
 // app setup blueprint
-
-import express, { Request } from 'express';
+import { createServer } from 'http';
+import express from 'express';
 import bodyParser from 'body-parser';
 import { connect } from 'mongoose';
 import { ApolloServer } from 'apollo-server-express';
-import { decode } from 'jsonwebtoken';
 
 import { schema } from './schema';
 import mainRoute from './main';
 import authRoute from './auth';
+
+const apolloServer = new ApolloServer({
+    schema,
+    context: ({ req, connection }: any) => {
+        if (connection) {
+            return {};
+        } else {
+            // get token from header
+            const header = req.headers.authorization;
+            const token = header && header.split(' ')[1];
+
+            // add token to context to verify user
+            return { token };
+        }
+    }
+});
 
 function createApp() {
     const app = express();
@@ -25,26 +40,16 @@ function createApp() {
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
 
-    // setup extensions
-    // apollo
-    const apolloServer = new ApolloServer({
-        schema,
-        context: ({ req }: { req: Request }) => {
-            // get token from header
-            const header = req.headers.authorization;
-            const token = header && header.split(' ')[1];
-
-            // add token to context to verify user
-            return { token };
-        }
-    });
     apolloServer.applyMiddleware({ app });
 
     // setup routes
     app.use('/', mainRoute);
     app.use('/auth', authRoute);
 
-    return app;
+    const server = createServer(app);
+    apolloServer.installSubscriptionHandlers(server);
+
+    return server;
 }
 
 export default createApp;

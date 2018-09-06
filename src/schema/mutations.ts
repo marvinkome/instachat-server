@@ -1,4 +1,7 @@
 import { gql } from 'apollo-server-express';
+import { pubsub } from './index';
+
+// models
 import User from '../models/user';
 import Group from '../models/group';
 import Role from '../models/role';
@@ -13,6 +16,7 @@ export const mutationType = gql`
         updateUser(username: String!, email: String, password: String): User
         joinGroup(groupId: String!, role: String): UserGroup
         sendMessage(groupId: String!, message: String!): Message
+        demoAction(text: String!): String
     }
 `;
 
@@ -114,7 +118,19 @@ export const mutationResolver = {
                 toGroup: group._id
             });
 
-            return message.save();
+            // await message.save();
+
+            // publish change
+            pubsub.publish('messageSent', {
+                messageSent: message,
+                group: group.id
+            });
+
+            return message;
+        },
+        demoAction: (root: any, data: any) => {
+            pubsub.publish('DEMO', { demoAction: data.text });
+            return data.text;
         }
     }
 };
