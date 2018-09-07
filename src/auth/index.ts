@@ -7,6 +7,34 @@ import { SECRET_KEY } from '../../config';
 
 const authRouter = Router();
 
+authRouter.post('/signup', async (req, res) => {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+        return res.status(400).json({
+            error: 'All fields are required'
+        });
+    }
+
+    const user = new User({
+        username,
+        email,
+        password
+    });
+
+    try {
+        await user.save();
+    } catch (e) {
+        return res.status(500).json({
+            error: 'Something went wrong'
+        });
+    }
+
+    return res.json({
+        msg: 'Account created. You can login now'
+    });
+});
+
 authRouter.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
