@@ -19,7 +19,7 @@ function context({ req, connection }: any) {
         const token = header && header.split(' ')[1];
 
         // add token to context to verify user
-        return { token };
+        return { token, req };
     }
 }
 

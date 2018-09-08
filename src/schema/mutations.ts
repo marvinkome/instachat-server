@@ -1,4 +1,7 @@
 import { gql } from 'apollo-server-express';
+import { format } from 'url';
+import { sign } from 'jsonwebtoken';
+import { SECRET_KEY } from '../../config';
 import { pubsub } from './index';
 
 // models
@@ -7,7 +10,7 @@ import Group from '../models/group';
 import Role from '../models/role';
 import Perms from '../models/permission';
 import Message from '../models/message';
-import { authUser } from './helpers';
+import { authUser, userCan, generateShortUrl } from './helpers';
 
 export const mutationType = gql`
     type Mutation {
@@ -16,7 +19,7 @@ export const mutationType = gql`
         updateUser(username: String!, email: String, password: String): User
         joinGroup(groupId: String!, role: String): UserGroup
         sendMessage(groupId: String!, message: String!): Message
-        demoAction(text: String!): String
+        createInvite(groupId: String!): String
     }
 `;
 
@@ -94,22 +97,9 @@ export const mutationResolver = {
             }
 
             // check if user is authorized to send message in this group
-            // @ts-ignore
-            const userGroup = user.groups.find(
-                (item: any) => String(item.group) === group.id
-            );
-
-            if (!userGroup) {
-                throw Error("Can't send message in a group you're not among");
-            }
-
-            if (
-                (userGroup.role.permission & Perms.SEND_MESSAGE) !==
-                Perms.SEND_MESSAGE
-            ) {
-                throw Error(
-                    "You're not permitted to send message in this group"
-                );
+            const authorized = await userCan(user, group, Perms.SEND_MESSAGE);
+            if (!authorized) {
+                throw Error('You are not authorized to perform this action');
             }
 
             const message = new Message({
@@ -128,9 +118,44 @@ export const mutationResolver = {
 
             return message;
         },
-        demoAction: (root: any, data: any) => {
-            pubsub.publish('DEMO', { demoAction: data.text });
-            return data.text;
+        createInvite: async (root: any, data: any, { token, req }: any) => {
+            const user = await authUser(token);
+            const group = await Group.findById(data.groupId);
+
+            if (!group) {
+                throw Error('Group not found');
+            }
+
+            // check if user is authorized to create link
+            const authorized = await userCan(
+                user,
+                group,
+                Perms.CREATE_USER_INVITE
+            );
+            if (!authorized) {
+                throw Error('Only admins can create invite links');
+            }
+
+            // create link with jwt
+            // payload - { groupID }
+            const jwttoken = sign({ groupId: group.id }, SECRET_KEY, {
+                noTimestamp: true,
+                expiresIn: '1h'
+            });
+
+            // url to invite
+            const appUrl = req.protocol + '://' + req.get('host');
+            const url = appUrl + '/jwt-invite/' + jwttoken;
+
+            // shorten url
+            const shortUrl = await generateShortUrl(url, appUrl);
+
+            if (shortUrl.err) {
+                throw Error('Cant generate url');
+            }
+
+            // @ts-ignore
+            return shortUrl.item.shortUrl;
         }
     }
 };

@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
     res.json({
-        msg: 'Welcome to chatapp Api: go to /graphql to start using th api'
+        msg: 'Welcome to chatapp Api: go to /graphql to start using the api'
     });
 });
 
