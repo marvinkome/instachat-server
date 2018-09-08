@@ -108,6 +108,7 @@ export const mutationResolver = {
                 toGroup: group._id
             });
 
+            // TODO
             // await message.save();
 
             // publish change
@@ -133,11 +134,12 @@ export const mutationResolver = {
                 Perms.CREATE_USER_INVITE
             );
             if (!authorized) {
-                throw Error('Only admins can create invite links');
+                // TODO
+                // throw Error('Only admins can create invite links');
             }
 
             // create link with jwt
-            // payload - { groupID }
+            // payload - { groupId }
             const jwttoken = sign({ groupId: group.id }, SECRET_KEY, {
                 noTimestamp: true,
                 expiresIn: '1h'
@@ -145,7 +147,7 @@ export const mutationResolver = {
 
             // url to invite
             const appUrl = req.protocol + '://' + req.get('host');
-            const url = appUrl + '/jwt-invite/' + jwttoken;
+            const url = appUrl + '/jwt-invite/' + encodeURIComponent(jwttoken);
 
             // shorten url
             const shortUrl = await generateShortUrl(url, appUrl);

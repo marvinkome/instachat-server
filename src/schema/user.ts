@@ -44,9 +44,9 @@ export const userResolvers = {
             const groups = user.groups;
 
             // filter groups and get the group
-            const filteredGroup = groups.filter((item: any) => {
-                return String(item.group) === groupId;
-            })[0];
+            const filteredGroup = groups.filter(
+                (item: any) => String(item.group) === groupId
+            )[0];
 
             // map
             const group = await Group.findById(filteredGroup.group);
