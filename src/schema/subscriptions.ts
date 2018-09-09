@@ -3,15 +3,20 @@ import { pubsub } from './index';
 
 export const subscriptionType = gql`
     type Subscription {
-        demoAction: String
+        chatLog: String
         messageSent(groupId: String): Message
     }
 `;
 
 export const subscriptionResolver = {
     Subscription: {
-        demoAction: {
-            subscribe: () => pubsub.asyncIterator(['DEMO'])
+        chatLog: {
+            subscribe: withFilter(
+                () => pubsub.asyncIterator('chatLog'),
+                (payload, variables) => {
+                    return payload.group === variables.groupId;
+                }
+            )
         },
         messageSent: {
             subscribe: withFilter(

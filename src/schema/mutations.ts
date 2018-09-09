@@ -1,5 +1,4 @@
 import { gql } from 'apollo-server-express';
-import { format } from 'url';
 import { sign } from 'jsonwebtoken';
 import { SECRET_KEY } from '../../config';
 import { pubsub } from './index';
@@ -29,10 +28,6 @@ export const mutationResolver = {
             const user = new User(data);
             return await user.save();
         },
-        createGroup: async (root: any, data: any) => {
-            const group = new Group(data);
-            return await group.save();
-        },
         updateUser: async (root: any, data: any, ctx: any) => {
             const user = await authUser(ctx.token);
 
@@ -55,6 +50,28 @@ export const mutationResolver = {
             }
 
             return user.save();
+        },
+        createGroup: async (root: any, data: any, ctx: any) => {
+            const user = await authUser(ctx.token);
+            const group = new Group(data);
+            const role = Role.admin;
+
+            // create group
+            await group.save();
+
+            // add user as admin in group
+            // @ts-ignore
+            const userGroup = await user.join_group(group, role);
+            if (userGroup.err) {
+                throw userGroup.err;
+            }
+            await user.save();
+
+            pubsub.publish('chatLog', {
+                // @ts-ignore
+                chatLog: `${user.username} created this group`
+            });
+            return group;
         },
         joinGroup: async (root: any, data: any, ctx: any) => {
             const user = await authUser(ctx.token);
@@ -87,37 +104,6 @@ export const mutationResolver = {
 
             await user.save();
             return userGroup;
-        },
-        sendMessage: async (root: any, data: any, ctx: any) => {
-            const user = await authUser(ctx.token);
-            const group = await Group.findById(data.groupId);
-
-            if (!group) {
-                throw Error('Group not found');
-            }
-
-            // check if user is authorized to send message in this group
-            const authorized = await userCan(user, group, Perms.SEND_MESSAGE);
-            if (!authorized) {
-                throw Error('You are not authorized to perform this action');
-            }
-
-            const message = new Message({
-                message: data.message,
-                from: user._id,
-                toGroup: group._id
-            });
-
-            // TODO
-            // await message.save();
-
-            // publish change
-            pubsub.publish('messageSent', {
-                messageSent: message,
-                group: group.id
-            });
-
-            return message;
         },
         createInvite: async (root: any, data: any, { token, req }: any) => {
             const user = await authUser(token);
@@ -158,6 +144,37 @@ export const mutationResolver = {
 
             // @ts-ignore
             return shortUrl.item.shortUrl;
+        },
+        sendMessage: async (root: any, data: any, ctx: any) => {
+            const user = await authUser(ctx.token);
+            const group = await Group.findById(data.groupId);
+
+            if (!group) {
+                throw Error('Group not found');
+            }
+
+            // check if user is authorized to send message in this group
+            const authorized = await userCan(user, group, Perms.SEND_MESSAGE);
+            if (!authorized) {
+                throw Error('You are not authorized to perform this action');
+            }
+
+            const message = new Message({
+                message: data.message,
+                from: user._id,
+                toGroup: group._id
+            });
+
+            // TODO
+            // await message.save();
+
+            // publish change
+            pubsub.publish('messageSent', {
+                messageSent: message,
+                group: group.id
+            });
+
+            return message;
         }
     }
 };
