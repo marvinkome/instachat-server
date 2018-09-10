@@ -1,7 +1,7 @@
 import User from '../models/user';
-import ShortUrl from '../models/shortenUrl';
-import { isUri } from 'valid-url';
+import Invitation from '../models/invitation';
 import { generate } from 'shortid';
+import { Document } from 'mongoose';
 
 export async function authUser(token: string) {
     // check if token is falsy aka: bad auth header
@@ -22,32 +22,22 @@ export async function authUser(token: string) {
     return user;
 }
 
-export async function generateShortUrl(originalUrl: string, baseUrl: string) {
-    if (!isUri(originalUrl) || !isUri(baseUrl)) {
-        return {
-            err: 'bad url'
-        };
-    }
-
-    // check if item exists
-    const item = await ShortUrl.findOne({ originalUrl });
+export async function generateInviteId(group: Document) {
+    // check if group invite exists
+    const item = await Invitation.findOne({ group });
     if (item) {
         return { item };
     }
 
-    const urlCode = generate();
-    const shortUrl = baseUrl + '/invite/' + urlCode;
-    const updatedAt = Date.now();
-
-    const url = new ShortUrl({
-        originalUrl,
-        urlCode,
-        shortUrl,
-        updatedAt
+    // no item create new invite id
+    const inviteId = generate();
+    const invite = new Invitation({
+        group,
+        inviteId
     });
 
-    await url.save();
-    return { item: url };
+    await invite.save();
+    return { item: invite };
 }
 
 export async function userCan(user: any, group: any, permission: any) {

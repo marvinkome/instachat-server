@@ -1,6 +1,5 @@
 import { gql } from 'apollo-server-express';
-import { sign } from 'jsonwebtoken';
-import { SECRET_KEY } from '../../config';
+import Invitation from '../models/invitation';
 import { pubsub } from './index';
 
 // models
@@ -9,16 +8,16 @@ import Group from '../models/group';
 import Role from '../models/role';
 import Perms from '../models/permission';
 import Message from '../models/message';
-import { authUser, userCan, generateShortUrl } from './helpers';
+import { authUser, userCan, generateInviteId } from './helpers';
 
 export const mutationType = gql`
     type Mutation {
         addUser(username: String!, email: String!, password: String!): User
-        createGroup(name: String!, topic: String): Group
         updateUser(username: String!, email: String, password: String): User
-        joinGroup(groupId: String!, role: String): UserGroup
-        sendMessage(groupId: String!, message: String!): Message
+        createGroup(name: String!, topic: String): UserGroup
+        joinGroup(inviteId: String!): User
         createInvite(groupId: String!): String
+        sendMessage(groupId: String!, message: String!): Message
     }
 `;
 
@@ -71,21 +70,30 @@ export const mutationResolver = {
                 // @ts-ignore
                 chatLog: `${user.username} created this group`
             });
-            return group;
+
+            // resolve user group
+            const resolvedGroup = { group, role };
+            return resolvedGroup;
         },
         joinGroup: async (root: any, data: any, ctx: any) => {
-            const user = await authUser(ctx.token);
-            const group = await Group.findById(data.groupId);
-            let role = Role.user;
+            // default role - User
+            const role = Role.user;
 
-            if (data.role) {
-                // check if role is available
-                const roles = Object.keys(Role);
-                if (data.role in roles) {
-                    // @ts-ignore
-                    role = Role[data.role];
-                }
+            // get user
+            const user = await authUser(ctx.token);
+
+            // get group id from invite id
+            const invitation = await Invitation.findOne({
+                inviteId: data.inviteId
+            });
+            if (!invitation) {
+                throw Error('Invitation link is bad');
             }
+
+            // get group from id
+            // @ts-ignore
+            const groupId = invitation.group;
+            const group = await Group.findById(groupId);
 
             if (!user) {
                 throw Error('User not found');
@@ -103,10 +111,12 @@ export const mutationResolver = {
             }
 
             await user.save();
-            return userGroup;
+            return user;
         },
         createInvite: async (root: any, data: any, { token, req }: any) => {
             const user = await authUser(token);
+            console.log(data);
+
             const group = await Group.findById(data.groupId);
 
             if (!group) {
@@ -121,29 +131,17 @@ export const mutationResolver = {
             );
             if (!authorized) {
                 // TODO
-                // throw Error('Only admins can create invite links');
+                throw Error('Only admins can create invite links');
             }
 
-            // create link with jwt
-            // payload - { groupId }
-            const jwttoken = sign({ groupId: group.id }, SECRET_KEY, {
-                noTimestamp: true,
-                expiresIn: '1h'
-            });
+            // create invite id
+            const { item } = await generateInviteId(group);
 
-            // url to invite
+            // generate a fake link with the id
             const appUrl = req.protocol + '://' + req.get('host');
-            const url = appUrl + '/jwt-invite/' + encodeURIComponent(jwttoken);
-
-            // shorten url
-            const shortUrl = await generateShortUrl(url, appUrl);
-
-            if (shortUrl.err) {
-                throw Error('Cant generate url');
-            }
-
             // @ts-ignore
-            return shortUrl.item.shortUrl;
+            const url = appUrl + '/invite/' + encodeURIComponent(item.inviteId);
+            return url;
         },
         sendMessage: async (root: any, data: any, ctx: any) => {
             const user = await authUser(ctx.token);
