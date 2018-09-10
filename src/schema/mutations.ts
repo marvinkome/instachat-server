@@ -166,7 +166,7 @@ export const mutationResolver = {
             });
 
             // TODO
-            // await message.save();
+            await message.save();
 
             // publish change
             pubsub.publish('messageSent', {
