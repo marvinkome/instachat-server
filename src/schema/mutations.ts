@@ -15,7 +15,7 @@ export const mutationType = gql`
         addUser(username: String!, email: String!, password: String!): User
         updateUser(username: String!, email: String, password: String): User
         createGroup(name: String!, topic: String): UserGroup
-        joinGroup(inviteId: String!): User
+        joinGroup(inviteId: String!): UserGroup
         createInvite(groupId: String!): String
         sendMessage(groupId: String!, message: String!): Message
     }
@@ -111,7 +111,10 @@ export const mutationResolver = {
             }
 
             await user.save();
-            return user;
+
+            // resolve user group
+            const resolvedGroup = { group, role };
+            return resolvedGroup;
         },
         createInvite: async (root: any, data: any, { token, req }: any) => {
             const user = await authUser(token);
