@@ -3,7 +3,7 @@ import { Schema, model } from 'mongoose';
 export const messageSchema = new Schema({
     message: String,
     timestamp: {
-        default: new Date(),
+        default: Date.now,
         type: Date
     },
     from: { type: Schema.Types.ObjectId, ref: 'User' },
