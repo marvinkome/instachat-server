@@ -8,11 +8,6 @@ export const userType = gql`
         permission: Int!
     }
 
-    type UserGroup {
-        group: Group
-        role: Role
-    }
-
     type User {
         id: ID!
         username: String!
@@ -21,26 +16,24 @@ export const userType = gql`
         about: String
         clientId: String
         sessionId: String
-        userGroups: [UserGroup]
-        userGroup(groupId: String!): UserGroup
+        groups: [Group]
+        group(groupId: String!): Group
         sentMessages: [Message]
     }
 `;
 
 export const userResolvers = {
     User: {
-        userGroups: (user: any) => {
-            const groups = user.groups;
-            // map
-            return groups.map(async (item: any) => {
+        groups: async (user: any) => {
+            const userGroups = user.groups;
+            const groups = userGroups.map(async (item: any) => {
                 const group = await Group.findById(item.group);
-                return {
-                    role: item.role,
-                    group
-                };
+                return group;
             });
+
+            return groups;
         },
-        userGroup: async (user: any, { groupId }: any) => {
+        group: async (user: any, { groupId }: any) => {
             const groups = user.groups;
 
             // filter groups and get the group
@@ -51,10 +44,7 @@ export const userResolvers = {
             // map
             const group = await Group.findById(filteredGroup.group);
 
-            return {
-                role: filteredGroup.role,
-                group
-            };
+            return group;
         },
         sentMessages: async (user: any) => {
             const messages = await Message.find({ from: user._id })
