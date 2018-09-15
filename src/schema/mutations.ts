@@ -14,8 +14,8 @@ export const mutationType = gql`
     type Mutation {
         addUser(username: String!, email: String!, password: String!): User
         updateUser(username: String!, email: String, password: String): User
-        createGroup(name: String!, topic: String): UserGroup
-        joinGroup(inviteId: String!): UserGroup
+        createGroup(name: String!, topic: String): Group
+        joinGroup(inviteId: String!): Group
         createInvite(groupId: String!): String
         sendMessage(groupId: String!, message: String!): Message
     }
@@ -71,9 +71,7 @@ export const mutationResolver = {
                 chatLog: `${user.username} created this group`
             });
 
-            // resolve user group
-            const resolvedGroup = { group, role };
-            return resolvedGroup;
+            return group;
         },
         joinGroup: async (root: any, data: any, ctx: any) => {
             // default role - User
@@ -113,8 +111,7 @@ export const mutationResolver = {
             await user.save();
 
             // resolve user group
-            const resolvedGroup = { group, role };
-            return resolvedGroup;
+            return group;
         },
         createInvite: async (root: any, data: any, { token, req }: any) => {
             const user = await authUser(token);
