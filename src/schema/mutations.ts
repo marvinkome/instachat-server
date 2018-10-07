@@ -18,6 +18,7 @@ export const mutationType = gql`
         joinGroup(inviteId: String!): Group
         createInvite(groupId: String!): String
         sendMessage(groupId: String!, message: String!): Message
+        setTypingState(groupId: String!, state: Boolean!): Boolean
     }
 `;
 
@@ -173,6 +174,24 @@ export const mutationResolver = {
             });
 
             return message;
+        },
+        setTypingState: async (root: any, data: any, ctx: any) => {
+            const user = await authUser(ctx.token);
+            const group = await Group.findById(data.groupId);
+
+            if (!group) {
+                throw Error('Group not found');
+            }
+
+            pubsub.publish('setTypingState', {
+                userTyping: {
+                    user,
+                    isTyping: data.state,
+                },
+                group: group.id
+            });
+
+            return null;
         }
     }
 };

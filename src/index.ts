@@ -12,7 +12,7 @@ import authRoute from './auth';
 
 function context({ req, connection }: any) {
     if (connection) {
-        return {};
+        return { ...connection.context };
     } else {
         // get token from header
         const header = req.headers.authorization;
