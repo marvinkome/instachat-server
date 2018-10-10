@@ -8,17 +8,20 @@ export const groupType = gql`
         name: String!
         topic: String
         createdOn: String
-        messages(first: Int, sort: Boolean): [Message]
+        messages(first: Int, sort: Boolean, after: String): [Message]
         role: Role
     }
 `;
 
 export const groupResolvers = {
     Group: {
-        messages: async (group: any, { first, sort }: any) => {
+        messages: async (group: any, { first, sort, after }: any) => {
             const messages = await Message.find({ toGroup: group._id })
+                .where('timestamp')
+                .gt(after || 0)
                 .sort({ timestamp: sort ? -1 : 1 })
                 .limit(first || null);
+
             return messages;
         },
         role: async (group: any, args: any, { token }: any) => {
