@@ -10,12 +10,14 @@ export const groupType = gql`
         createdOn: String
         messages(first: Int, sort: Boolean, after: String): [Message]
         role: Role
+        lastMessage: Message
+        numberOfNewMessages(messageTimestamp: String!): Int!
     }
 `;
 
 export const groupResolvers = {
     Group: {
-        messages: async (group: any, { first, sort, after }: any) => {
+        async messages(group: any, { first, sort, after }: any) {
             const messages = await Message.find({ toGroup: group._id })
                 .where('timestamp')
                 .gt(after || 0)
@@ -24,7 +26,7 @@ export const groupResolvers = {
 
             return messages;
         },
-        role: async (group: any, args: any, { token }: any) => {
+        async role(group: any, args: any, { token }: any) {
             try {
                 const user = await authUser(token);
                 // @ts-ignore
@@ -40,6 +42,22 @@ export const groupResolvers = {
             } catch (e) {
                 return null;
             }
+        },
+        async lastMessage(group: any, args: any) {
+            const messages = await Message.findOne({ toGroup: group._id }).sort(
+                '-timestamp'
+            );
+
+            return messages;
+        },
+        async numberOfNewMessages(group: any, { messageTimestamp }: any) {
+            const messages = await Message.find({ toGroup: group._id })
+                .where('timestamp')
+                .gt(messageTimestamp || 0)
+                .sort({ timestamp: -1 })
+                .countDocuments();
+
+            return messages;
         }
     }
 };

@@ -7,6 +7,7 @@ export const queryType = gql`
     type Query {
         user: User
         group(id: String!): Group
+        groups: [Group]
     }
 `;
 
@@ -19,6 +20,18 @@ export const queryResolver = {
         group: async (root: any, { id }: any) => {
             const group = await Group.findById(id);
             return group;
+        },
+        groups: async (root: any, data: any, ctx: any) => {
+            const user = await authUser(ctx.token);
+
+            // @ts-ignore
+            const userGroups = user.groups;
+            const groups = userGroups.map(async (item: any) => {
+                const group = await Group.findById(item.group);
+                return group;
+            });
+
+            return groups;
         }
     }
 };
