@@ -186,7 +186,7 @@ export const mutationResolver = {
             pubsub.publish('setTypingState', {
                 userTyping: {
                     user,
-                    isTyping: data.state,
+                    isTyping: data.state
                 },
                 group: group.id
             });

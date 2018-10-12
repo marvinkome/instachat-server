@@ -1,5 +1,6 @@
 import { gql } from 'apollo-server-express';
 import Message from '../models/message';
+import User from '../models/user';
 import { authUser } from './helpers';
 
 export const groupType = gql`
@@ -10,8 +11,9 @@ export const groupType = gql`
         createdOn: String
         role: Role
         lastMessage: Message
+        unreadCount: Int
+        members: [User]
         messages(first: Int, sort: Boolean, after: String): [Message]
-        numberOfNewMessages(messageTimestamp: String!): Int!
     }
 `;
 
@@ -43,21 +45,26 @@ export const groupResolvers = {
                 return null;
             }
         },
-        async lastMessage(group: any, args: any) {
+        async lastMessage(group: any) {
             const messages = await Message.findOne({ toGroup: group._id }).sort(
                 '-timestamp'
             );
 
             return messages;
         },
-        async numberOfNewMessages(group: any, { messageTimestamp }: any) {
+        async unreadCount(group: any, _: any, { token }: any) {
+            const user = await authUser(token);
             const messages = await Message.find({ toGroup: group._id })
                 .where('timestamp')
-                .gt(messageTimestamp || 0)
+                // @ts-ignore
+                .gt(user.lastSeen || 0)
                 .sort({ timestamp: -1 })
                 .countDocuments();
 
             return messages;
+        },
+        async members(group: any) {
+            return User.find({ 'groups.group': group._id });
         }
     }
 };

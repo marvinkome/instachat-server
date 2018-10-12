@@ -49,6 +49,7 @@ async function onDisconnect(_: any, ctx: any) {
     }
 
     currentUser.active = false;
+    currentUser.lastSeen = new Date();
     currentUser.save();
 
     console.log(currentUser.username, 'has disconnected');

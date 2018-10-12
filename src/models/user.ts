@@ -20,6 +20,7 @@ export const userSchema = new Schema({
         maxlength: 128,
         required: true
     },
+    lastSeen: Date,
     active: Boolean,
     about: String,
     authKey: String,
