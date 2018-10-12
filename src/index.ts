@@ -23,21 +23,41 @@ function context({ req, connection }: any) {
     }
 }
 
+async function onConnect(connParams: any) {
+    if (!connParams.authToken) {
+        throw Error('Missing auth token!');
+    }
+
+    const user = await authUser(connParams.authToken);
+
+    // @ts-ignore
+    user.active = true;
+    user.save();
+
+    // @ts-ignore
+    console.log(user.username, 'has connected');
+
+    return {
+        currentUser: user
+    };
+}
+
+async function onDisconnect(_: any, ctx: any) {
+    const { currentUser } = await ctx.initPromise;
+    if (!currentUser) {
+        return;
+    }
+
+    currentUser.active = false;
+    currentUser.save();
+
+    console.log(currentUser.username, 'has disconnected');
+}
+
 const apolloServer = new ApolloServer({
     schema,
     context,
-    subscriptions: {
-        onConnect: async (connParams: any) => {
-            if (connParams.authToken) {
-                const user = await authUser(connParams.authToken);
-                return {
-                    currentUser: user
-                };
-            }
-
-            throw Error('Missing auth token!');
-        }
-    }
+    subscriptions: { onConnect, onDisconnect }
 });
 
 function createApp() {

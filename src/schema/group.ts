@@ -8,9 +8,9 @@ export const groupType = gql`
         name: String!
         topic: String
         createdOn: String
-        messages(first: Int, sort: Boolean, after: String): [Message]
         role: Role
         lastMessage: Message
+        messages(first: Int, sort: Boolean, after: String): [Message]
         numberOfNewMessages(messageTimestamp: String!): Int!
     }
 `;

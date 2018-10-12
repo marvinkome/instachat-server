@@ -16,6 +16,7 @@ export const userType = gql`
         about: String
         clientId: String
         sessionId: String
+        active: Boolean
         groups: [Group]
         group(groupId: String!): Group
         sentMessages: [Message]

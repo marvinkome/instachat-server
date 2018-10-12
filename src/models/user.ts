@@ -20,13 +20,14 @@ export const userSchema = new Schema({
         maxlength: 128,
         required: true
     },
+    active: Boolean,
     about: String,
     authKey: String,
     groups: [
         {
             group: {
                 type: Schema.Types.ObjectId,
-                ref: 'Group',
+                ref: 'Group'
             },
             role: {
                 name: String,

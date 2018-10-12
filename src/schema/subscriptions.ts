@@ -37,8 +37,12 @@ export const subscriptionResolver = {
         messageSent: {
             subscribe: withFilter(
                 () => pubsub.asyncIterator('messageSent'),
-                (payload, variables) => {
-                    return payload.group === variables.groupId;
+                (payload, variables, context) => {
+                    return (
+                        payload.messageSent.from.id !==
+                            context.currentUser.id &&
+                        payload.group === variables.groupId
+                    );
                 }
             )
         }
