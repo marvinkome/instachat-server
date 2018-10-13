@@ -25,6 +25,11 @@ export const resolvers = {
                 user,
                 isTyping: data.state
             },
+            userGroupTyping: {
+                user,
+                isTyping: data.state,
+                group
+            },
             group: group.id
         });
 
@@ -46,9 +51,7 @@ export const resolvers = {
             {
                 $set: {
                     'groups.$.viewing': data.viewing,
-                    ...(!data.viewing && {
-                        'groups.$.lastViewed': new Date()
-                    })
+                    'groups.$.lastViewed': data.viewing ? -1 : new Date()
                 }
             }
         );
