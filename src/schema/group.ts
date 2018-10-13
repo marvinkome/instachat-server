@@ -13,6 +13,7 @@ export const groupType = gql`
         lastMessage: Message
         unreadCount: Int
         members: [User]
+        lastViewed: String
         messages(first: Int, sort: Boolean, after: String): [Message]
     }
 `;
@@ -45,6 +46,22 @@ export const groupResolvers = {
                 return null;
             }
         },
+        async lastViewed(group: any, args: any, { token }: any) {
+            const user = await authUser(token);
+            // @ts-ignore
+            const groups = user.groups;
+
+            // filter groups and get the group
+            const filteredGroup = groups.find(
+                (item: any) => String(item.group) === group.id
+            );
+
+            // return the role
+            if (!filteredGroup) {
+                return null;
+            }
+            return filteredGroup.lastViewed;
+        },
         async lastMessage(group: any) {
             const messages = await Message.findOne({ toGroup: group._id }).sort(
                 '-timestamp'
@@ -54,10 +71,23 @@ export const groupResolvers = {
         },
         async unreadCount(group: any, _: any, { token }: any) {
             const user = await authUser(token);
+
+            // @ts-ignore
+            const userGroup = user.groups.find(
+                (i: any) => String(i.group) === group.id
+            );
+
+            if (!userGroup) {
+                throw Error('Group not found');
+            }
+
+            if (userGroup.viewing) {
+                return null;
+            }
+
             const messages = await Message.find({ toGroup: group._id })
                 .where('timestamp')
-                // @ts-ignore
-                .gt(user.lastSeen || 0)
+                .gt(userGroup.lastViewed || 0)
                 .sort({ timestamp: -1 })
                 .countDocuments();
 

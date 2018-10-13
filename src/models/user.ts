@@ -33,7 +33,12 @@ export const userSchema = new Schema({
             role: {
                 name: String,
                 permission: Number
-            }
+            },
+            viewing: {
+                default: false,
+                type: Boolean
+            },
+            lastViewed: Date
         }
     ],
     sentMessages: [
