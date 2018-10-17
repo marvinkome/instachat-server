@@ -14,6 +14,7 @@ export const groupType = gql`
         unreadCount: Int
         members: [User]
         lastViewed: String
+        lastViewedMessage: String
         viewing: Boolean
         messages(first: Int, sort: Boolean, after: String): [Message]
     }
@@ -57,11 +58,33 @@ export const groupResolvers = {
                 (item: any) => String(item.group) === group.id
             );
 
-            // return the role
             if (!filteredGroup) {
                 return null;
             }
             return filteredGroup.lastViewed;
+        },
+        async lastViewedMessage(group: any, args: any, { token }: any) {
+            const user = await authUser(token);
+            // @ts-ignore
+            const groups = user.groups;
+
+            // filter groups and get the group
+            const filteredGroup = groups.find(
+                (item: any) => String(item.group) === group.id
+            );
+
+            if (!filteredGroup) {
+                return null;
+            }
+
+            const viewTime = filteredGroup.lastViewed;
+
+            const message = await Message.findOne({
+                toGroup: group._id,
+                timestamp: { $gt: viewTime }
+            });
+
+            return message ? message.id : null;
         },
         async viewing(group: any, args: any, { token }: any) {
             const user = await authUser(token);
