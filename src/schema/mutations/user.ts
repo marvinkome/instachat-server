@@ -6,7 +6,7 @@ export const typeDef = `
     addUser(username: String!, email: String!, password: String!): User
 
     # Update existing user
-    updateUser(username: String, email: String, password: String): User
+    updateUser(username: String, email: String, about: String): User
 `;
 
 export const resolvers = {
@@ -31,9 +31,9 @@ export const resolvers = {
         }
 
         // update password
-        if (data.password) {
+        if (data.about) {
             // @ts-ignore
-            user.password = data.password;
+            user.about = data.about;
         }
 
         return user.save();
