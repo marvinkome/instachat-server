@@ -1,9 +1,7 @@
 import { Router } from 'express';
-// import passport from 'passport';
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
 import { SECRET_KEY } from '../../config';
-// import './passport';
 
 const authRouter = Router();
 
@@ -70,6 +68,33 @@ authRouter.post('/login', async (req, res) => {
     // return
     return res.json({
         token
+    });
+});
+
+authRouter.get('/logout', async (req, res) => {
+    const token = req.headers.authorization;
+
+    if (!token) {
+        return res.json({
+            resp: 'no token in header'
+        });
+    }
+
+    // get user
+    const user = await User.findOne({ authKey: token });
+
+    if (!user) {
+        return res.json({
+            resp: 'user not found'
+        });
+    }
+
+    // @ts-ignore
+    user.authKey = null;
+    await user.save();
+
+    return res.json({
+        resp: 'logout successfull'
     });
 });
 

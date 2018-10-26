@@ -6,7 +6,10 @@ export const typeDef = `
     addUser(username: String!, email: String!, password: String!): User
 
     # Update existing user
-    updateUser(username: String, email: String, about: String): User
+    updateUser(username: String, email: String, about: String): User,
+
+    # register device token for push notification
+    registerDevice(token: String!): User
 `;
 
 export const resolvers = {
@@ -36,6 +39,14 @@ export const resolvers = {
             user.about = data.about;
         }
 
+        return user.save();
+    },
+
+    registerDevice: async (root: any, data: any, ctx: any) => {
+        const user = await authUser(ctx.token);
+
+        // @ts-ignore
+        user.deviceToken = data.token;
         return user.save();
     }
 };

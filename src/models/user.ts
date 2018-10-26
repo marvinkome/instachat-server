@@ -24,6 +24,7 @@ export const userSchema = new Schema({
     active: Boolean,
     about: String,
     authKey: String,
+    deviceToken: String,
     groups: [
         {
             group: {

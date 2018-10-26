@@ -18,6 +18,7 @@ export const userType = gql`
         sessionId: String
         active: Boolean
         lastSeen: String
+        deviceToken: String
         groups: [Group]
         group(groupId: String!): Group
         sentMessages: [Message]
