@@ -8,6 +8,7 @@ export const groupType = gql`
         id: ID!
         name: String!
         topic: String
+        image: String
         createdOn: String
         role: Role
         lastMessage: Message

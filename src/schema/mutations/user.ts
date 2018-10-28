@@ -6,7 +6,7 @@ export const typeDef = `
     addUser(username: String!, email: String!, password: String!): User
 
     # Update existing user
-    updateUser(username: String, email: String, about: String): User,
+    updateUser(username: String, email: String, about: String, pic: String): User,
 
     # register device token for push notification
     registerDevice(token: String!): User
@@ -37,6 +37,12 @@ export const resolvers = {
         if (data.about) {
             // @ts-ignore
             user.about = data.about;
+        }
+
+        // update image
+        if (data.pic) {
+            // @ts-ignore
+            user.profilePic = data.pic;
         }
 
         return user.save();

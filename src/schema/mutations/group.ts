@@ -7,7 +7,7 @@ import Perms from '../../models/permission';
 
 export const typeDef = `
     # create a new group
-    createGroup(name: String!, topic: String): Group
+    createGroup(name: String!, topic: String, image: String): Group
 
     # add user to group with inviteId
     joinGroup(inviteId: String!): Group

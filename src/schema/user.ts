@@ -19,6 +19,7 @@ export const userType = gql`
         active: Boolean
         lastSeen: String
         deviceToken: String
+        profilePic: String
         groups: [Group]
         group(groupId: String!): Group
         sentMessages: [Message]

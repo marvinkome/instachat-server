@@ -8,6 +8,7 @@ export const groupSchema = new Schema({
     },
     topic: String,
     createdOn: Date,
+    image: String,
     messages: [
         {
             type: Schema.Types.ObjectId,
