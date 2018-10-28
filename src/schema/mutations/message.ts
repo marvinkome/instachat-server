@@ -54,6 +54,8 @@ export const resolvers = {
                     title: group.name,
                     // @ts-ignore
                     msg: message.message,
+                    // @ts-ignore
+                    groupImg: group.image,
                     msgId: message._id,
                     groupId: data.groupId
                 }
