@@ -64,6 +64,16 @@ export const resolvers = {
             throw Error('Group not found');
         }
 
+        // check if user is already in group
+        // @ts-ignore
+        const userInGroup = user.groups.find(
+            (item: any) => String(item.group) === String(group._id)
+        );
+
+        if (userInGroup) {
+            throw Error('Already in group');
+        }
+
         // @ts-ignore
         const userGroup = await user.join_group(group, role);
 
