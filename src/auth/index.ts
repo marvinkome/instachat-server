@@ -56,9 +56,8 @@ authRouter.post('/login', async (req, res) => {
     }
 
     // encode jwt token
-    const token = jwt.sign({ userId: user.id }, SECRET_KEY, {
-        noTimestamp: true
-    });
+    // only one token can exist at a time
+    const token = jwt.sign({ userId: user.id }, SECRET_KEY);
 
     // save token as authToken in db also
     // @ts-ignore
