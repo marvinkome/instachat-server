@@ -76,7 +76,7 @@ authRouter.post('/logout', async (req, res) => {
     console.log(token);
 
     if (!token) {
-        return res.json({
+        return res.status(400).json({
             resp: 'no token in header'
         });
     }
@@ -85,7 +85,7 @@ authRouter.post('/logout', async (req, res) => {
     const user = await User.findOne({ authKey: token });
 
     if (!user) {
-        return res.json({
+        return res.status(400).json({
             resp: 'user not found'
         });
     }

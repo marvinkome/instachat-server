@@ -17,7 +17,7 @@ export const groupType = gql`
         lastViewed: String
         lastViewedMessage: String
         viewing: Boolean
-        messages(first: Int, sort: Boolean, after: String): [Message]
+        messages(first: Int, sort: Boolean, after: Int): [Message]
     }
 `;
 
@@ -25,10 +25,9 @@ export const groupResolvers = {
     Group: {
         async messages(group: any, { first, sort, after }: any) {
             const messages = await Message.find({ toGroup: group._id })
-                .where('timestamp')
-                .gt(after || 0)
                 .sort({ timestamp: sort ? -1 : 1 })
-                .limit(first || null);
+                .limit(first || null)
+                .skip(after || null);
 
             return messages;
         },
@@ -79,6 +78,10 @@ export const groupResolvers = {
             }
 
             const viewTime = filteredGroup.lastViewed;
+
+            if (viewTime === -1) {
+                return null;
+            }
 
             const message = await Message.findOne({
                 toGroup: group._id,
