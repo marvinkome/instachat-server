@@ -14,11 +14,10 @@ Platform:
   linux x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/typescript: ETIMEDOUT
-      at Timeout._onTimeout (/usr/share/yarn/lib/cli.js:138128:19)
-      at ontimeout (timers.js:498:11)
-      at tryOnTimeout (timers.js:323:5)
-      at Timer.listOnTimeout (timers.js:290:5)
+  Error: connect ENETUNREACH 104.16.16.35:443
+      at Object._errnoException (util.js:992:11)
+      at _exceptionWithHostPort (util.js:1014:20)
+      at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1186:14)
 
 npm manifest: 
   {
