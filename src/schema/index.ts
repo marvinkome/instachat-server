@@ -1,7 +1,6 @@
 import { makeExecutableSchema, PubSub } from 'apollo-server-express';
 import FCMPush from 'fcm-push';
 
-import { SERVER_KEY } from '../../config';
 // types and resolvers
 import { queryType, queryResolver } from './query';
 import { mutationType, mutationResolver } from './mutations';
@@ -11,7 +10,7 @@ import { groupType, groupResolvers } from './group';
 import { messageType, messageResolvers } from './message';
 
 export const pubsub = new PubSub();
-export const fcm = new FCMPush(SERVER_KEY);
+export const fcm = new FCMPush(process.env.GOOGLE_SERVER_KEY);
 
 export const schema = makeExecutableSchema({
     typeDefs: [

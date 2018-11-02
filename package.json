@@ -9,9 +9,9 @@
     },
     "scripts": {
         "build": "tsc",
-        "start": "node ./dist/index.js",
-        "dev": "nodemon --exec ts-node index.ts",
-        "prod": "yarn build && yarn start"
+        "start-server": "node ./dist/index.js",
+        "start": "yarn build && yarn start-server",
+        "dev": "nodemon --exec ts-node index.ts"
     },
     "author": "",
     "license": "ISC",

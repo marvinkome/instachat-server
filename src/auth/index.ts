@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
-import { SECRET_KEY } from '../../config';
 
 const authRouter = Router();
 
@@ -57,7 +56,7 @@ authRouter.post('/login', async (req, res) => {
 
     // encode jwt token
     // only one token can exist at a time
-    const token = jwt.sign({ userId: user.id }, SECRET_KEY);
+    const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY || '');
 
     // save token as authToken in db also
     // @ts-ignore

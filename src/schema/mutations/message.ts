@@ -1,6 +1,5 @@
 import { authUser, userCan } from '../helpers';
 import { pubsub, fcm } from '../index';
-import { CLIENT_KEY } from '../../../config';
 
 import Group from '../../models/group';
 import Perms from '../../models/permission';
@@ -9,8 +8,6 @@ import Message from '../../models/message';
 export const typeDef = `
     # Send message to group
     sendMessage(groupId: String!, message: String!): Message
-    sendNotification: Boolean
-    sendTopicNotification(groupId: String!): Boolean
 `;
 
 export const resolvers = {
@@ -66,36 +63,5 @@ export const resolvers = {
         }
 
         return message;
-    },
-    sendNotification: async (root: any, data: any) => {
-        try {
-            fcm.send({
-                to: CLIENT_KEY,
-                notification: {
-                    title: 'Notification Title',
-                    message: 'Notification Message'
-                }
-            });
-            return true;
-        } catch (e) {
-            throw Error(e);
-        }
-    },
-    sendTopicNotification: async (root: any, data: any) => {
-        try {
-            fcm.send({
-                to: `/topics/${data.groupId}`,
-                collapse_key: 'new_message',
-                delay_while_idle: false,
-                data: {
-                    title: 'title',
-                    msg: 'some data',
-                    groupId: data.groupId
-                }
-            });
-            return true;
-        } catch (e) {
-            throw Error(e);
-        }
     }
 };
