@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/bin/node /usr/share/yarn/bin/yarn.js add fcm-push @types/fcm-push
+  /usr/bin/node /usr/share/yarn/bin/yarn.js add typescript -D
 
 PATH: 
   /home/marvinkome/.cargo/bin:/home/marvinkome/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/marvinkome/Android/Sdk/emulator:/home/marvinkome/Android/Sdk/tools:/home/marvinkome/Android/Sdk/tools/bin:/home/marvinkome/Android/Sdk/platform-tools
@@ -14,27 +14,27 @@ Platform:
   linux x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@types%2ffcm-push: Not found
-      at Request.params.callback [as _callback] (/usr/share/yarn/lib/cli.js:64202:18)
-      at Request.self.callback (/usr/share/yarn/lib/cli.js:137468:22)
-      at emitTwo (events.js:126:13)
-      at Request.emit (events.js:214:7)
-      at Request.<anonymous> (/usr/share/yarn/lib/cli.js:138440:10)
-      at emitOne (events.js:116:13)
-      at Request.emit (events.js:211:7)
-      at IncomingMessage.<anonymous> (/usr/share/yarn/lib/cli.js:138362:12)
-      at Object.onceWrapper (events.js:313:30)
-      at emitNone (events.js:111:20)
+  Error: https://registry.yarnpkg.com/typescript: ETIMEDOUT
+      at Timeout._onTimeout (/usr/share/yarn/lib/cli.js:138128:19)
+      at ontimeout (timers.js:498:11)
+      at tryOnTimeout (timers.js:323:5)
+      at Timer.listOnTimeout (timers.js:290:5)
 
 npm manifest: 
   {
-      "name": "chatapp",
+      "name": "instachat-api",
       "version": "1.0.0",
       "description": "",
-      "main": "helloWorld.js",
+      "main": "index.js",
+      "engines": {
+          "node": "8.11.4",
+          "yarn": "1.9.4"
+      },
       "scripts": {
-          "test": "echo \"Error: no test specified\" && exit 1",
-          "start": "nodemon --exec ts-node index.ts"
+          "build": "tsc",
+          "start": "node ./dist/index.js",
+          "postinstall": "yarn build",
+          "dev": "nodemon --exec ts-node index.ts"
       },
       "author": "",
       "license": "ISC",
@@ -43,6 +43,7 @@ npm manifest:
           "bcrypt": "^3.0.0",
           "body-parser": "^1.18.3",
           "express": "^4.16.3",
+          "fcm-push": "^1.1.3",
           "graphql": "^14.0.0",
           "jsonwebtoken": "^8.3.0",
           "mongoose": "^5.2.12",
@@ -491,6 +492,10 @@ Lockfile:
     version "3.5.1"
     resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.1.tgz#d9551f9de98f1fcda1e683d17ee91a0602ee2eb9"
   
+  bluebird@^3.4.1:
+    version "3.5.2"
+    resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.2.tgz#1be0908e054a751754549c270489c1505d4ab15a"
+  
   body-parser@1.18.2:
     version "1.18.2"
     resolved "https://registry.yarnpkg.com/body-parser/-/body-parser-1.18.2.tgz#87678a19d84b47d859b83199bd59bce222b10454"
@@ -830,6 +835,13 @@ Lockfile:
   fast-json-stable-stringify@^2.0.0:
     version "2.0.0"
     resolved "https://registry.yarnpkg.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.0.0.tgz#d5142c0caee6b1189f87d3a76111064f86c8bbf2"
+  
+  fcm-push@^1.1.3:
+    version "1.1.3"
+    resolved "https://registry.yarnpkg.com/fcm-push/-/fcm-push-1.1.3.tgz#71271f4e3625a6ec27ff85607e582c16973bd4c6"
+    dependencies:
+      bluebird "^3.4.1"
+      retry "^0.9.0"
   
   figlet@^1.1.1:
     version "1.2.0"
@@ -1724,6 +1736,10 @@ Lockfile:
     version "0.10.1"
     resolved "https://registry.yarnpkg.com/retry/-/retry-0.10.1.tgz#e76388d217992c252750241d3d3956fed98d8ff4"
   
+  retry@^0.9.0:
+    version "0.9.0"
+    resolved "https://registry.yarnpkg.com/retry/-/retry-0.9.0.tgz#6f697e50a0e4ddc8c8f7fb547a9b60dead43678d"
+  
   rimraf@^2.6.1:
     version "2.6.2"
     resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.6.2.tgz#2ed8150d24a16ea8651e6d6ef0f47c4158ce7a36"
@@ -1964,6 +1980,10 @@ Lockfile:
       xml2js "^0.4.17"
       yargonaut "^1.1.2"
       yargs "^11.1.0"
+  
+  typescript@^3.1.6:
+    version "3.1.6"
+    resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.1.6.tgz#b6543a83cfc8c2befb3f4c8fba6896f5b0c9be68"
   
   unpipe@1.0.0, unpipe@~1.0.0:
     version "1.0.0"
