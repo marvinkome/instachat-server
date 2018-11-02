@@ -8,9 +8,9 @@
         "yarn": "1.9.4"
     },
     "scripts": {
-        "build": "yarn tsc",
-        "start-server": "node ./dist/index.js",
-        "start": "yarn build && yarn start-server",
+        "build": "tsc",
+        "start": "node ./dist/index.js",
+        "postinstall": "yarn build",
         "dev": "nodemon --exec ts-node index.ts"
     },
     "author": "",
@@ -42,7 +42,6 @@
         "@types/passport-jwt": "^3.0.1",
         "@types/passport-local": "^1.0.33",
         "@types/shortid": "^0.0.29",
-        "@types/valid-url": "^1.0.2",
-        "typescript": "^3.1.6"
+        "@types/valid-url": "^1.0.2"
     }
 }
