@@ -9,8 +9,8 @@
     },
     "scripts": {
         "build": "tsc",
-        "start-server": "node ./dist/index.js",
-        "start": "yarn build && yarn start-server",
+        "start": "node ./dist/index.js",
+        "postinstall": "yarn build",
         "dev": "nodemon --exec ts-node index.ts"
     },
     "author": "",
