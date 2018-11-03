@@ -15,7 +15,7 @@ export const groupType = gql`
         unreadCount: Int
         members: [User]
         lastViewed: String
-        lastViewedMessage: String
+        lastViewedMessage: Message
         viewing: Boolean
         messages(first: Int, sort: Boolean, after: Int): [Message]
     }
@@ -79,7 +79,7 @@ export const groupResolvers = {
 
             const viewTime = filteredGroup.lastViewed;
 
-            if (viewTime === -1) {
+            if (Number(viewTime) === -1) {
                 return null;
             }
 
@@ -88,7 +88,7 @@ export const groupResolvers = {
                 timestamp: { $gt: viewTime }
             });
 
-            return message ? message.id : null;
+            return message;
         },
         async viewing(group: any, args: any, { token }: any) {
             const user = await authUser(token);
