@@ -3,6 +3,8 @@ import { authUser, userCan, generateInviteId } from '../helpers';
 import Invitation from '../../models/invitation';
 import Group from '../../models/group';
 import Role from '../../models/role';
+import User from '../../models/user';
+import Message from '../../models/message';
 import Perms from '../../models/permission';
 
 export const typeDef = `
@@ -14,6 +16,9 @@ export const typeDef = `
 
     # Create invite link to join group
     createInvite(groupId: String!): String
+
+    # Delete a group
+    deleteGroup(groupId: String!): Boolean
 `;
 
 export const resolvers = {
@@ -89,7 +94,6 @@ export const resolvers = {
 
     createInvite: async (root: any, data: any, { token, req }: any) => {
         const user = await authUser(token);
-        console.log(data);
 
         const group = await Group.findById(data.groupId);
 
@@ -112,5 +116,40 @@ export const resolvers = {
         // @ts-ignore
         const url = appUrl + '/invite/' + encodeURIComponent(item.inviteId);
         return url;
+    },
+
+    deleteGroup: async (root: any, data: any, ctx: any) => {
+        const user = await authUser(ctx.token);
+        const group = await Group.findById(data.groupId);
+
+        if (!group) {
+            throw Error('Group not found');
+        }
+
+        // check if user is authorized to create link
+        const authorized = await userCan(user, group, Perms.CREATE_USER_INVITE);
+        if (!authorized) {
+            throw Error('Only admins can delete group');
+        }
+
+        // remove all messages
+        await Message.find({ toGroup: group._id }).remove();
+
+        // remove all members
+        await User.updateMany(
+            {},
+            {
+                $pull: { groups: { group: group._id } }
+            }
+        );
+
+        try {
+            // @ts-ignore remove group
+            await group.remove();
+        } catch (e) {
+            return false;
+        }
+
+        return true;
     }
 };
