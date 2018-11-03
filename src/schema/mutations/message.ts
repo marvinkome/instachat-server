@@ -50,7 +50,7 @@ export const resolvers = {
                     // @ts-ignore
                     title: group.name,
                     // @ts-ignore
-                    msg: message.message,
+                    msg: `${user.username}: ${message.message}`,
                     // @ts-ignore
                     groupImg: group.image,
                     msgId: message._id,
