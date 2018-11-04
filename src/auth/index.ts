@@ -71,7 +71,6 @@ authRouter.post('/login', async (req, res) => {
 
 authRouter.post('/logout', async (req, res) => {
     const token = req.headers.authorization;
-    console.log(token);
 
     if (!token) {
         return res.status(400).json({
