@@ -31,7 +31,6 @@ export const resolvers = {
             toGroup: group._id
         });
 
-        // TODO
         await message.save();
 
         // publish change
@@ -57,7 +56,6 @@ export const resolvers = {
                     groupId: data.groupId
                 }
             });
-            return true;
         } catch (e) {
             throw Error(e);
         }
